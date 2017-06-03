@@ -352,7 +352,8 @@ def run_list(root_node):
     :type root_node: Node
     """
     op_code_node = root_node.value
-
+    if op_code_node.type is TokenType.LIST:
+        op_code_node = op_code_node.value
     return run_func(op_code_node)(root_node)
 
 #심볼테이블에서 값 찾기
@@ -595,6 +596,28 @@ def run_func(op_code_node):
             return run_cond(node.next)      #다음 조건문으로 넘어감
         return run_expr(node.value.next)        #조건문 결과가 참일 경우 해당 조건문의 리턴 값 반환
 
+    def run_lambda(node):
+        root_node = node.value
+        formal_param_node = root_node.value.next.value
+        exp_node = root_node.value.next.next
+        actual_param_node = root_node.next
+
+
+        while True:
+            if actual_param_node.type is TokenType.ID:
+                temp_value = lookupTable(actual_param_node.value)
+            else:
+                temp_value = actual_param_node
+            insertTable(formal_param_node.value, temp_value)
+            if formal_param_node.next is not None:
+                formal_param_node = formal_param_node.next
+                actual_param_node = actual_param_node.next
+            else:
+                break
+
+
+        if lookupTable(formal_param_node.value) is not None:
+            return run_func(exp_node.value)(exp_node)
 
     def create_new_quote_list(value_node, list_flag=False):
         """
@@ -648,6 +671,7 @@ def run_func(op_code_node):
     table['='] = eq
     table['cond'] = cond
     table['define'] = define
+    table['lambda'] = run_lambda
 
     return table[op_code_node.value]
 
