@@ -617,10 +617,19 @@ def run_func(op_code_node):
         while True:
             if actual_param_node.type is TokenType.ID:
                 temp_value = lookupTable(actual_param_node.value)
+
             elif actual_param_node.type is TokenType.LIST:
                 temp_value = run_list(actual_param_node)
+
+                ####17번케이스 리커시젼을 위한거
+            elif actual_param_node.type is TokenType.INT:
+                temp_value = actual_param_node
+            elif actual_param_node.value.type is not TokenType.LAMBDA and actual_param_node.value.value in CuteType.KEYWORD_LIST:
+                temp_value = run_expr(actual_param_node)
+
             else:
                 temp_value = actual_param_node
+                #### 리커시브 번경코드
             insertTable(formal_param_node.value, temp_value)
             if formal_param_node.next is not None:
                 formal_param_node = formal_param_node.next
