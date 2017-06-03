@@ -453,8 +453,10 @@ def run_func(op_code_node):
         r_node = l_node.next            #덧셈에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
+        """
         if op_code_node.next.type is TokenType.ID:
             new_l_node = lookupTable(new_l_node.value)
+        """
         result = int(new_l_node.value) + int(new_r_node.value)      #피연산자의 값을 더해줌
         return Node(TokenType.INT, result)      #더한 결과를 value로 한 노드 반환
 
@@ -466,8 +468,10 @@ def run_func(op_code_node):
         r_node = l_node.next        #뺄셈에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
+        """
         if op_code_node.next.type is TokenType.ID:
             new_l_node = lookupTable(new_l_node.value)
+            """
         result = int(new_l_node.value) - int(new_r_node.value)      #피연산자의 값을 빼줌
         return Node(TokenType.INT, result)      #뺀 결과를 value로 한 노드 반환
 
@@ -479,8 +483,10 @@ def run_func(op_code_node):
         r_node = l_node.next            #곱셈에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
+        """
         if op_code_node.next.type is TokenType.ID:
             new_l_node = lookupTable(new_l_node.value)
+            """
         result = int(new_l_node.value) * int(new_r_node.value)      #피연산자의 값을 곱해줌
         return Node(TokenType.INT, result)      #곱한 결과를 value로 한 노드 반환
 
@@ -492,8 +498,10 @@ def run_func(op_code_node):
         r_node = l_node.next            #나눗셈에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
+        """
         if op_code_node.next.type is TokenType.ID:
             new_l_node = lookupTable(new_l_node.value)
+            """
         result = int(new_l_node.value) / int(new_r_node.value)  #피연산자의 값을 나누어줌
         return Node(TokenType.INT, result)      #나눈 결과를 value로 한 노드 반환
 
@@ -505,8 +513,10 @@ def run_func(op_code_node):
         r_node = l_node.next            #'<' 연산자에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
+        """
         if op_code_node.next.type is TokenType.ID:
             new_l_node = lookupTable(new_l_node.value)
+            """
         result = int(new_l_node.value) - int(new_r_node.value)  #피연산자의 값을 빼줌
         if result < 0:      #빼준 결과가 음수인 경우
             return Node(TokenType.TRUE)     #오른쪽 피연산자가 크다. (참)
@@ -521,8 +531,10 @@ def run_func(op_code_node):
         r_node = l_node.next            #'=' 연산자에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
+        """
         if op_code_node.next.type is TokenType.ID:
             new_l_node = lookupTable(new_l_node.value)
+            """
         result = int(new_l_node.value) - int(new_r_node.value)  #피연산자의 값을 빼줌
         if result is 0:     #빼준 결과가 0인 경우
             return Node(TokenType.TRUE)     #두 피연산자의 값이 같다. (참)
@@ -537,8 +549,10 @@ def run_func(op_code_node):
         r_node = l_node.next            #'>' 연산자에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
+        """
         if op_code_node.next.type is TokenType.ID:
             new_l_node = lookupTable(new_l_node.value)
+            """
         result = int(new_l_node.value) - int(new_r_node.value)  #피연산자의 값을 빼줌
         if result > 0:      #빼준 결과가 0보다 큰 경우
             return Node(TokenType.TRUE)     #왼쪽 피연산자가 크다. (참)
@@ -604,6 +618,8 @@ def run_func(op_code_node):
     def define(node):
         id_node = node.value.next
         value_node = id_node.next
+        if value_node.value in symbolTable:
+            value_node = lookupTable(value_node.value)
         if value_node.type is not TokenType.INT and value_node.value.type is not TokenType.QUOTE:
             value_node = run_expr(value_node)
         insertTable(id_node.value, value_node)
@@ -643,6 +659,7 @@ def run_expr(root_node):
     if root_node is None:
         return None
 
+    #ID를 이용해서 테이블에서 값찾기
     if root_node.type is TokenType.ID:
         root_node = lookupTable(root_node.value)
         return root_node
@@ -735,7 +752,9 @@ def Test_method(input):
     test_basic_paser = BasicPaser(test_tokens)
     node = test_basic_paser.parse_expr()
     cute_inter = run_expr(node)
-    print print_node(cute_inter)
+    #Define이 아닐때 출력
+    if cute_inter is not None:
+        print "...", print_node(cute_inter)
 
 
 def Test_All():
