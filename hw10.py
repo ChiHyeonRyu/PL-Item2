@@ -356,10 +356,16 @@ def run_list(root_node):
     return run_func(op_code_node)(root_node)
 
 
+
 def run_func(op_code_node):
     """
-    :type op_code_node:Node/
+    :type op_code_node:Node
     """
+
+    def lookupTable(id):
+        v_node = symbolTable[id]
+        return v_node
+
     def quote(node):
         return node
 
@@ -448,6 +454,8 @@ def run_func(op_code_node):
         r_node = l_node.next            #덧셈에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
+        if op_code_node.next.type is TokenType.ID:
+            new_l_node = lookupTable(new_l_node.value)
         result = int(new_l_node.value) + int(new_r_node.value)      #피연산자의 값을 더해줌
         return Node(TokenType.INT, result)      #더한 결과를 value로 한 노드 반환
 
@@ -459,6 +467,8 @@ def run_func(op_code_node):
         r_node = l_node.next        #뺄셈에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
+        if op_code_node.next.type is TokenType.ID:
+            new_l_node = lookupTable(new_l_node.value)
         result = int(new_l_node.value) - int(new_r_node.value)      #피연산자의 값을 빼줌
         return Node(TokenType.INT, result)      #뺀 결과를 value로 한 노드 반환
 
@@ -470,6 +480,8 @@ def run_func(op_code_node):
         r_node = l_node.next            #곱셈에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
+        if op_code_node.next.type is TokenType.ID:
+            new_l_node = lookupTable(new_l_node.value)
         result = int(new_l_node.value) * int(new_r_node.value)      #피연산자의 값을 곱해줌
         return Node(TokenType.INT, result)      #곱한 결과를 value로 한 노드 반환
 
@@ -481,6 +493,8 @@ def run_func(op_code_node):
         r_node = l_node.next            #나눗셈에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
+        if op_code_node.next.type is TokenType.ID:
+            new_l_node = lookupTable(new_l_node.value)
         result = int(new_l_node.value) / int(new_r_node.value)  #피연산자의 값을 나누어줌
         return Node(TokenType.INT, result)      #나눈 결과를 value로 한 노드 반환
 
@@ -492,6 +506,8 @@ def run_func(op_code_node):
         r_node = l_node.next            #'<' 연산자에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
+        if op_code_node.next.type is TokenType.ID:
+            new_l_node = lookupTable(new_l_node.value)
         result = int(new_l_node.value) - int(new_r_node.value)  #피연산자의 값을 빼줌
         if result < 0:      #빼준 결과가 음수인 경우
             return Node(TokenType.TRUE)     #오른쪽 피연산자가 크다. (참)
@@ -506,6 +522,8 @@ def run_func(op_code_node):
         r_node = l_node.next            #'=' 연산자에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
+        if op_code_node.next.type is TokenType.ID:
+            new_l_node = lookupTable(new_l_node.value)
         result = int(new_l_node.value) - int(new_r_node.value)  #피연산자의 값을 빼줌
         if result is 0:     #빼준 결과가 0인 경우
             return Node(TokenType.TRUE)     #두 피연산자의 값이 같다. (참)
@@ -520,6 +538,8 @@ def run_func(op_code_node):
         r_node = l_node.next            #'>' 연산자에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
+        if op_code_node.next.type is TokenType.ID:
+            new_l_node = lookupTable(new_l_node.value)
         result = int(new_l_node.value) - int(new_r_node.value)  #피연산자의 값을 빼줌
         if result > 0:      #빼준 결과가 0보다 큰 경우
             return Node(TokenType.TRUE)     #왼쪽 피연산자가 크다. (참)
@@ -587,9 +607,7 @@ def run_func(op_code_node):
         value_node = id_node.next
         if value_node.type is not TokenType.INT and value_node.value.type is not TokenType.QUOTE:
             value_node = run_expr(value_node)
-        insertTable(id_node.value, value_node.value)
-        print symbolTable[id_node.value]
-        #return Node(id_node.value, value_node)
+        insertTable(id_node.value, value_node)
 
     def insertTable(id, value):
         symbolTable[id] = value
