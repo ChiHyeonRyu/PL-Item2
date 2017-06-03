@@ -605,20 +605,28 @@ def run_func(op_code_node):
 
     def run_lambda(node):
         formal_param_node = node.value.next.value
-        exp_node = node.value.next.next
+        exp_node = node.value.next.next # 함수가 들어 있는 Node
         actual_param_node = node.next
+
+
 
         if actual_param_node is None:
             return node
 
+
         while True:
             if actual_param_node.type is TokenType.ID:
                 temp_value = lookupTable(actual_param_node.value)
+
+            elif actual_param_node.type is TokenType.LIST:
+                temp_value = run_list(actual_param_node)
+
                 ####17번케이스 리커시젼을 위한거
             elif actual_param_node.type is TokenType.INT:
                 temp_value = actual_param_node
             elif actual_param_node.value.type is not TokenType.LAMBDA and actual_param_node.value.value in CuteType.KEYWORD_LIST:
                 temp_value = run_expr(actual_param_node)
+
             else:
                 temp_value = actual_param_node
                 #### 리커시브 번경코드
@@ -630,8 +638,11 @@ def run_func(op_code_node):
                 break
 
 
-        if lookupTable(formal_param_node.value) is not None:
+        if exp_node.value.type is not TokenType.ID:
             return run_func(exp_node.value)(exp_node)
+        else:
+            return run_list(exp_node)
+
 
     def create_new_quote_list(value_node, list_flag=False):
         """
