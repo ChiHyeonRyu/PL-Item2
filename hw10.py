@@ -355,16 +355,15 @@ def run_list(root_node):
 
     return run_func(op_code_node)(root_node)
 
-
+#심볼테이블에서 값 찾기
+def lookupTable(id):
+    v_node = symbolTable[id]
+    return v_node
 
 def run_func(op_code_node):
     """
     :type op_code_node:Node
     """
-
-    def lookupTable(id):
-        v_node = symbolTable[id]
-        return v_node
 
     def quote(node):
         return node
@@ -645,6 +644,7 @@ def run_expr(root_node):
         return None
 
     if root_node.type is TokenType.ID:
+        root_node = lookupTable(root_node.value)
         return root_node
     elif root_node.type is TokenType.INT:
         return root_node
@@ -777,7 +777,6 @@ def Test_All():
         cuteExpression = raw_input("> ")
         if cuteExpression == "n" or cuteExpression == "N":
             break
-        print "... ",
         Test_method(cuteExpression)
     print "\n<201203405 류치현>"
 
