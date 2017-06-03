@@ -352,8 +352,13 @@ def run_list(root_node):
     :type root_node: Node
     """
     op_code_node = root_node.value
-    if op_code_node.type is TokenType.LIST:
-        op_code_node = op_code_node.value
+
+    if op_code_node.type is TokenType.ID:
+        op_code_node = lookupTable(op_code_node.value)
+        op_code_node.next = root_node.value.next
+        root_node = op_code_node
+    if(op_code_node.type is TokenType.LIST):
+        return run_list(op_code_node)
     return run_func(op_code_node)(root_node)
 
 #심볼테이블에서 값 찾기
@@ -596,12 +601,15 @@ def run_func(op_code_node):
             return run_cond(node.next)      #다음 조건문으로 넘어감
         return run_expr(node.value.next)        #조건문 결과가 참일 경우 해당 조건문의 리턴 값 반환
 
-    def run_lambda(node):
-        root_node = node.value
-        formal_param_node = root_node.value.next.value
-        exp_node = root_node.value.next.next
-        actual_param_node = root_node.next
+    # def define_lambda(node):
 
+    def run_lambda(node):
+        formal_param_node = node.value.next.value
+        exp_node = node.value.next.next
+        actual_param_node = node.next
+
+        if actual_param_node is None:
+            return node
 
         while True:
             if actual_param_node.type is TokenType.ID:
@@ -641,8 +649,10 @@ def run_func(op_code_node):
     def define(node):
         id_node = node.value.next
         value_node = id_node.next
+
         if value_node.value in symbolTable:
             value_node = lookupTable(value_node.value)
+
         if value_node.type is not TokenType.INT and value_node.value.type is not TokenType.QUOTE:
             value_node = run_expr(value_node)
         insertTable(id_node.value, value_node)
