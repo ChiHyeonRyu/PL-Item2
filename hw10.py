@@ -347,14 +347,14 @@ class BasicPaser(object):
 #전역 심볼테이블 선언
 symbolTable = {}
 
-#테이블에 넣기
+#심볼테이블에 넣기
 def insertTable(id, value):
     symbolTable[id] = value
     return symbolTable[id]
 
 #심볼테이블에서 값 찾기
 def lookupTable(id):
-    if id in symbolTable:   #테이블에 있으면 해당 값 리턴
+    if id in symbolTable:   #심볼테이블에 있으면 해당 값 리턴
         v_node = symbolTable[id]
         return v_node
     else:   #없으면 None 리턴
@@ -366,12 +366,12 @@ def run_list(root_node):
     """
     op_code_node = root_node.value
 
-    if op_code_node.type is TokenType.ID:
-        op_code_node = lookupTable(op_code_node.value)
-        op_code_node.next = root_node.value.next
+    if op_code_node.type is TokenType.ID:   #실인자로 함수를 실행할 때 수행( ex) (plus1 3) )
+        op_code_node = lookupTable(op_code_node.value)  #심볼테이블에서 define된 해당 함수식을 찾는다.
+        op_code_node.next = root_node.value.next        #실인자를 덧붙인다
         root_node = op_code_node
 
-    if(op_code_node.type is TokenType.LIST):
+    if(op_code_node.type is TokenType.LIST):    #람다식의 이중 리스트 벗기기
         return run_list(op_code_node)
 
     return run_func(op_code_node)(root_node)
@@ -458,105 +458,102 @@ def run_func(op_code_node):
             return Node(TokenType.TRUE)
         return Node(TokenType.FALSE)
 
-    # Fill Out
-    # table을 보고 함수를 작성하시오
-
     def plus(node):
         """
         :type node: Node
         """
-        l_node = node.value.next        #덧셈에 대한 왼쪽 피연산자
-        r_node = l_node.next            #덧셈에 대한 오른쪽 피연산자
-        new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
+        l_node = node.value.next
+        r_node = l_node.next
+        new_l_node = run_expr(l_node)
         new_r_node = run_expr(r_node)
-        result = int(new_l_node.value) + int(new_r_node.value)      #피연산자의 값을 더해줌
-        return Node(TokenType.INT, result)      #더한 결과를 value로 한 노드 반환
+        result = int(new_l_node.value) + int(new_r_node.value)
+        return Node(TokenType.INT, result)
 
     def minus(node):
         """
         :type node: Node
         """
-        l_node = node.value.next    #뺄셈에 대한 왼쪽 피연산자
-        r_node = l_node.next        #뺄셈에 대한 오른쪽 피연산자
-        new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
+        l_node = node.value.next
+        r_node = l_node.next
+        new_l_node = run_expr(l_node)
         new_r_node = run_expr(r_node)
-        result = int(new_l_node.value) - int(new_r_node.value)      #피연산자의 값을 빼줌
-        return Node(TokenType.INT, result)      #뺀 결과를 value로 한 노드 반환
+        result = int(new_l_node.value) - int(new_r_node.value)
+        return Node(TokenType.INT, result)
 
     def multiple(node):
         """
         :type node: Node
         """
-        l_node = node.value.next        #곱셈에 대한 왼쪽 피연산자
-        r_node = l_node.next            #곱셈에 대한 오른쪽 피연산자
-        new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
+        l_node = node.value.next
+        r_node = l_node.next
+        new_l_node = run_expr(l_node)
         new_r_node = run_expr(r_node)
-        result = int(new_l_node.value) * int(new_r_node.value)      #피연산자의 값을 곱해줌
-        return Node(TokenType.INT, result)      #곱한 결과를 value로 한 노드 반환
+        result = int(new_l_node.value) * int(new_r_node.value)
+        return Node(TokenType.INT, result)
 
     def divide(node):
         """
         :type node: Node
         """
-        l_node = node.value.next        #나눗셈에 대한 왼쪽 피연산자
-        r_node = l_node.next            #나눗셈에 대한 오른쪽 피연산자
-        new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
+        l_node = node.value.next
+        r_node = l_node.next
+        new_l_node = run_expr(l_node)
         new_r_node = run_expr(r_node)
-        result = int(new_l_node.value) / int(new_r_node.value)  #피연산자의 값을 나누어줌
-        return Node(TokenType.INT, result)      #나눈 결과를 value로 한 노드 반환
+        result = int(new_l_node.value) / int(new_r_node.value)
+        return Node(TokenType.INT, result)
 
     def lt(node):
         """
         :type node: Node
         """
-        l_node = node.value.next        #'<' 연산자에 대한 왼쪽 피연산자
-        r_node = l_node.next            #'<' 연산자에 대한 오른쪽 피연산자
-        new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
+        l_node = node.value.next
+        r_node = l_node.next
+        new_l_node = run_expr(l_node)
         new_r_node = run_expr(r_node)
-        result = int(new_l_node.value) - int(new_r_node.value)  #피연산자의 값을 빼줌
-        if result < 0:      #빼준 결과가 음수인 경우
-            return Node(TokenType.TRUE)     #오른쪽 피연산자가 크다. (참)
-        else:               #배준 결과가 양수인 경우
-            return Node(TokenType.FALSE)    #왼쪽 피연산자가 크다. (거짓)
+        result = int(new_l_node.value) - int(new_r_node.value)
+        if result < 0:
+            return Node(TokenType.TRUE)
+        else:
+            return Node(TokenType.FALSE)
 
     def eq(node):
         """
         :type node: Node
         """
-        l_node = node.value.next        #'=' 연산자에 대한 왼쪽 피연산자
-        r_node = l_node.next            #'=' 연산자에 대한 오른쪽 피연산자
-        new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
+        l_node = node.value.next
+        r_node = l_node.next
+        new_l_node = run_expr(l_node)
         new_r_node = run_expr(r_node)
-        result = int(new_l_node.value) - int(new_r_node.value)  #피연산자의 값을 빼줌
-        if result is 0:     #빼준 결과가 0인 경우
-            return Node(TokenType.TRUE)     #두 피연산자의 값이 같다. (참)
-        else:               #빼준 결과가 0이 아닌 경우
-            return Node(TokenType.FALSE)    #두 피연산자의 값이 다르다. (거짓)
+        result = int(new_l_node.value) - int(new_r_node.value)
+        if result is 0:
+            return Node(TokenType.TRUE)
+        else:
+            return Node(TokenType.FALSE)
 
     def gt(node):
         """
         :type node: Node
         """
-        l_node = node.value.next        #'>' 연산자에 대한 왼쪽 피연산자
-        r_node = l_node.next            #'>' 연산자에 대한 오른쪽 피연산자
-        new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
+        l_node = node.value.next
+        r_node = l_node.next
+        new_l_node = run_expr(l_node)
         new_r_node = run_expr(r_node)
-        result = int(new_l_node.value) - int(new_r_node.value)  #피연산자의 값을 빼줌
-        if result > 0:      #빼준 결과가 0보다 큰 경우
-            return Node(TokenType.TRUE)     #왼쪽 피연산자가 크다. (참)
-        else:               #빼준 결과가 0보다 작은 경우
-            return Node(TokenType.FALSE)    #오른쪽 피연산자가 크다. (거짓)
+        result = int(new_l_node.value) - int(new_r_node.value)
+        if result > 0:
+            return Node(TokenType.TRUE)
+        else:
+            return Node(TokenType.FALSE)
 
     def not_op(node):
         """
         :type node: Node
         """
-        l_node = node.value.next    #'not' 연산자에 대한 피연산자
-        result = run_expr(l_node)   #피연산자에 대해 run_expr() 함수 실행
-        if result.type is TokenType.TRUE:   #결과가 참인 경우
-            return Node(TokenType.FALSE)    #FALSE 노드 반환
-        else:       #결과가 거짓인 경우
-            return Node(TokenType.TRUE)     #TRUE 노드 반환
+        l_node = node.value.next
+        result = run_expr(l_node)
+        if result.type is TokenType.TRUE:
+            return Node(TokenType.FALSE)
+        else:
+            return Node(TokenType.TRUE)
 
     def cond(node):
         l_node = node.value.next
@@ -571,17 +568,17 @@ def run_func(op_code_node):
         :type node: Node
         """
         #Fill Out
-        cond_node = None        #조건문과 리턴값
-        if(node.value.type is TokenType.LIST):      #바로 조건문이 아니고 리스트일 경우
-            cond_node = run_expr(node.value)        #run_expr(해당 리스트) 호출
-        else:             #바로 조건문 일 경우
-            cond_node = node.value      #리스트의 원소들(조건문과 리턴값)만 취함
-        if(cond_node.type not in CuteType.BOOLEAN_LIST):        #조건문이 관계or논리 연산이 아닐 경우
-            print('Type Error!')        #조건문 에러 처리
+        cond_node = None
+        if(node.value.type is TokenType.LIST):
+            cond_node = run_expr(node.value)
+        else:
+            cond_node = node.value
+        if(cond_node.type not in CuteType.BOOLEAN_LIST):
+            print('Type Error!')
             return None
-        if(cond_node.type is TokenType.FALSE):      #조건문 결과가 거짓일 경우
-            return run_cond(node.next)      #다음 조건문으로 넘어감
-        return run_expr(node.value.next)        #조건문 결과가 참일 경우 해당 조건문의 리턴 값 반환
+        if(cond_node.type is TokenType.FALSE):
+            return run_cond(node.next)
+        return run_expr(node.value.next)
 
     def create_new_quote_list(value_node, list_flag=False):
         """
@@ -604,35 +601,34 @@ def run_func(op_code_node):
 
     #Define 함수
     def define(node):
-        id_node = node.value.next
+        id_node = node.value.next   #define할 '변수'와 '값' 분리
         value_node = id_node.next
 
-        if value_node.value in symbolTable:
+        if value_node.value in symbolTable:     #값이 변수라면 심볼테이블에 define된 값을 가져옴
             value_node = lookupTable(value_node.value)
 
         if value_node.type is not TokenType.INT and value_node.value.type is not TokenType.QUOTE:
-            value_node = run_expr(value_node)
-        insertTable(id_node.value, value_node)
-        return id_node
+            value_node = run_expr(value_node)   #값이 수식이면 계산 후 최종값을 저장
+        insertTable(id_node.value, value_node)  #심볼테이블에 define
 
-    #람다실행
+    #람다함수
     def run_lambda(node):
         formal_param_node = node.value.next.value   #람다식의 매개변수
         exp_node = node.value.next.next  #람다식의 실행부분(바디)
         actual_param_node = node.next   #람다식의 실인자
 
-        global symbolTable  #전역 테이블을 사용하기위한 선언
+        global symbolTable  #전역 심볼테이블을 사용하기위한 선언
 
-        backup = symbolTable.copy()     #현재 scope 참조환경 백업
+        backupTable = symbolTable.copy()     #현재 scope 참조환경 백업
 
         if actual_param_node is None:   #첫번째 원소가 람다일때 두번째 원소가 없으면 그대로 리턴
             return node
 
         #매개변수를 실인자로 바인딩
         while True:
-            temp_value = run_expr(actual_param_node)    #실인자의 run_expr
+            actual_value_forBinding = run_expr(actual_param_node)    #실인자의 run_expr
 
-            insertTable(formal_param_node.value, temp_value)    #매개변수에 바인딩
+            insertTable(formal_param_node.value, actual_value_forBinding)    #매개변수에 바인딩
 
             if formal_param_node.next is not None:  #한개이상의 매개변수를 가질때 반복해서 바인딩
                 formal_param_node = formal_param_node.next
@@ -648,7 +644,7 @@ def run_func(op_code_node):
             result = run_expr(exp_node.next)
             exp_node = exp_node.next
 
-        symbolTable = backup    #이전 참조환경으로 복원
+        symbolTable = backupTable    #이전 참조환경으로 복원
 
         return result   #람다식의 결과를 리턴
 
@@ -670,8 +666,8 @@ def run_func(op_code_node):
     table['>'] = gt
     table['='] = eq
     table['cond'] = cond
-    table['define'] = define
-    table['lambda'] = run_lambda
+    table['define'] = define    #define built-in 함수 저장
+    table['lambda'] = run_lambda    #람다 built-in 함수 저장
 
     return table[op_code_node.value]
 
@@ -683,7 +679,7 @@ def run_expr(root_node):
     if root_node is None:
         return None
 
-    #ID를 이용해서 테이블에서 값찾기
+    #ID를 이용해서 테이블에서 값(노드) 찾기
     if root_node.type is TokenType.ID:
         root_node = lookupTable(root_node.value)
         return root_node
@@ -777,10 +773,11 @@ def Test_method(input):
     test_basic_paser = BasicPaser(test_tokens)
     node = test_basic_paser.parse_expr()
     cute_inter = run_expr(node)
-    #Define이 아닐때 출력
+    #결과값 출력. 입력 받은 해당 변수가 테이블에 없으면 Undefined
     if cute_inter is not None:
         print "...", print_node(cute_inter)
-
+    elif input is not "" and lookupTable(input) is None and node.type is TokenType.ID:
+        print node.value, ": Undefined"
 
 def Test_All():
     """
@@ -822,6 +819,6 @@ def Test_All():
         if cuteExpression == "q" or cuteExpression == "Q":
             break
         Test_method(cuteExpression)
-    print "\n<201203405 류치현>"
+    print "\n:::[레온고?][201203405 류치현][201202149 백승진]:::"
 
 Test_All()
