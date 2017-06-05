@@ -617,10 +617,11 @@ def run_func(op_code_node):
         formal_param_node = node.value.next.value
         exp_node = node.value.next.next # 함수가 들어 있는 Node
         actual_param_node = node.next
-        prev_formal_param_value = {}
+        prev_formal_param_value = {}    #부모변수를 백업하기위한 테이블
         temp_formal_param = formal_param_node
         temp_actual_param = actual_param_node
 
+        #부모 변수 백업
         while temp_formal_param is not None and lookupTable(temp_formal_param.value) is not None:
             prev_formal_param_value[temp_formal_param.value] = lookupTable(temp_formal_param.value)
             temp_formal_param = temp_formal_param.next
@@ -630,6 +631,7 @@ def run_func(op_code_node):
         if actual_param_node is None:
             return node
 
+        #매개변수 바인딩
         while True:
             temp_value = run_expr(temp_actual_param)
 
@@ -644,16 +646,24 @@ def run_func(op_code_node):
         temp_formal_param = formal_param_node
         temp_actual_param = temp_actual_param
 
+        #실행부분 실행
         result = run_expr(exp_node)
 
+        #실행부분이 두개이상인경우
+        while exp_node.next is not None:
+            result = run_expr(exp_node.next)
+            exp_node = exp_node.next
+
+        #임시로 바인딩한 지역변수를 테이블에서삭제
         while temp_formal_param is not None:
             del symbolTable[temp_formal_param.value]
             temp_formal_param = temp_formal_param.next
 
-
+        #부모의 변수를 복원
         while formal_param_node is not None and formal_param_node.value in prev_formal_param_value:
             insertTable(formal_param_node.value, prev_formal_param_value[formal_param_node.value])
             formal_param_node = formal_param_node.next
+
         return result
 
     table = {}
@@ -710,6 +720,7 @@ def print_node(node):
     "입력은 List Node 또는 atom"
     :type node: Node
     """
+
     def print_list(node):
         """
         "List노드의 value에 대해서 출력"
@@ -805,7 +816,6 @@ def Test_All():
     Test_method("(eq? ' a ' b)")
     Test_method("(eq? ' 3 ' 3)")
     Test_method("(eq? ' 3 ' 4)")
-
     Test_method("(+ 1 2 )")
     Test_method("(- ( + 1 2 ) 4 )")
     Test_method("(* 3 2 )")
