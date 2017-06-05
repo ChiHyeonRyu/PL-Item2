@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#201203405 Ryu Chi Hyeon
+
 from string import letters, digits, whitespace
 
 class CuteType:
@@ -354,10 +354,10 @@ def insertTable(id, value):
 
 #심볼테이블에서 값 찾기
 def lookupTable(id):
-    if id in symbolTable:
+    if id in symbolTable:   #테이블에 있으면 해당 값 리턴
         v_node = symbolTable[id]
         return v_node
-    else:
+    else:   #없으면 None 리턴
         return None
 
 def run_list(root_node):
@@ -370,8 +370,10 @@ def run_list(root_node):
         op_code_node = lookupTable(op_code_node.value)
         op_code_node.next = root_node.value.next
         root_node = op_code_node
+
     if(op_code_node.type is TokenType.LIST):
         return run_list(op_code_node)
+
     return run_func(op_code_node)(root_node)
 
 def run_func(op_code_node):
@@ -611,42 +613,44 @@ def run_func(op_code_node):
         if value_node.type is not TokenType.INT and value_node.value.type is not TokenType.QUOTE:
             value_node = run_expr(value_node)
         insertTable(id_node.value, value_node)
+        return id_node
 
     #람다실행
     def run_lambda(node):
-        formal_param_node = node.value.next.value
-        exp_node = node.value.next.next # 함수가 들어 있는 Node
-        actual_param_node = node.next
-        global symbolTable
+        formal_param_node = node.value.next.value   #람다식의 매개변수
+        exp_node = node.value.next.next  #람다식의 실행부분(바디)
+        actual_param_node = node.next   #람다식의 실인자
 
-        backup = symbolTable.copy()
+        global symbolTable  #전역 테이블을 사용하기위한 선언
 
-        if actual_param_node is None:
+        backup = symbolTable.copy()     #현재 scope 참조환경 백업
+
+        if actual_param_node is None:   #첫번째 원소가 람다일때 두번째 원소가 없으면 그대로 리턴
             return node
 
-        #매개변수 바인딩
+        #매개변수를 실인자로 바인딩
         while True:
-            temp_value = run_expr(actual_param_node)
+            temp_value = run_expr(actual_param_node)    #실인자의 run_expr
 
-            insertTable(formal_param_node.value, temp_value)
+            insertTable(formal_param_node.value, temp_value)    #매개변수에 바인딩
 
-            if formal_param_node.next is not None:
+            if formal_param_node.next is not None:  #한개이상의 매개변수를 가질때 반복해서 바인딩
                 formal_param_node = formal_param_node.next
                 actual_param_node = actual_param_node.next
             else:
                 break
 
-        #실행부분 실행
+        #실행부분 실행. 실행부분이 한개 인 경우
         result = run_expr(exp_node)
 
-        #실행부분이 두개이상인경우
+        #실행부분이 두개 이상인 경우 실행부분을 끝까지 수행
         while exp_node.next is not None:
             result = run_expr(exp_node.next)
             exp_node = exp_node.next
 
-        symbolTable = backup
+        symbolTable = backup    #이전 참조환경으로 복원
 
-        return result
+        return result   #람다식의 결과를 리턴
 
     table = {}
     table['cons'] = cons
@@ -798,6 +802,7 @@ def Test_All():
     Test_method("(eq? ' a ' b)")
     Test_method("(eq? ' 3 ' 3)")
     Test_method("(eq? ' 3 ' 4)")
+
     Test_method("(+ 1 2 )")
     Test_method("(- ( + 1 2 ) 4 )")
     Test_method("(* 3 2 )")
