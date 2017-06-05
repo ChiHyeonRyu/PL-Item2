@@ -2,8 +2,6 @@
 #201203405 Ryu Chi Hyeon
 from string import letters, digits, whitespace
 
-symbolTable = {}
-
 class CuteType:
     INT = 1
     ID = 4
@@ -346,6 +344,21 @@ class BasicPaser(object):
             head.next = self._parse_expr_list()
         return head
 
+#전역 심볼테이블 선언
+symbolTable = {}
+
+#테이블에 넣기
+def insertTable(id, value):
+    symbolTable[id] = value
+    return symbolTable[id]
+
+#심볼테이블에서 값 찾기
+def lookupTable(id):
+    if id in symbolTable:
+        v_node = symbolTable[id]
+        return v_node
+    else:
+        return None
 
 def run_list(root_node):
     """
@@ -360,11 +373,6 @@ def run_list(root_node):
     if(op_code_node.type is TokenType.LIST):
         return run_list(op_code_node)
     return run_func(op_code_node)(root_node)
-
-#심볼테이블에서 값 찾기
-def lookupTable(id):
-    v_node = symbolTable[id]
-    return v_node
 
 def run_func(op_code_node):
     """
@@ -459,10 +467,6 @@ def run_func(op_code_node):
         r_node = l_node.next            #덧셈에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
-        """
-        if op_code_node.next.type is TokenType.ID:
-            new_l_node = lookupTable(new_l_node.value)
-        """
         result = int(new_l_node.value) + int(new_r_node.value)      #피연산자의 값을 더해줌
         return Node(TokenType.INT, result)      #더한 결과를 value로 한 노드 반환
 
@@ -474,10 +478,6 @@ def run_func(op_code_node):
         r_node = l_node.next        #뺄셈에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
-        """
-        if op_code_node.next.type is TokenType.ID:
-            new_l_node = lookupTable(new_l_node.value)
-            """
         result = int(new_l_node.value) - int(new_r_node.value)      #피연산자의 값을 빼줌
         return Node(TokenType.INT, result)      #뺀 결과를 value로 한 노드 반환
 
@@ -489,10 +489,6 @@ def run_func(op_code_node):
         r_node = l_node.next            #곱셈에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
-        """
-        if op_code_node.next.type is TokenType.ID:
-            new_l_node = lookupTable(new_l_node.value)
-            """
         result = int(new_l_node.value) * int(new_r_node.value)      #피연산자의 값을 곱해줌
         return Node(TokenType.INT, result)      #곱한 결과를 value로 한 노드 반환
 
@@ -504,10 +500,6 @@ def run_func(op_code_node):
         r_node = l_node.next            #나눗셈에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
-        """
-        if op_code_node.next.type is TokenType.ID:
-            new_l_node = lookupTable(new_l_node.value)
-            """
         result = int(new_l_node.value) / int(new_r_node.value)  #피연산자의 값을 나누어줌
         return Node(TokenType.INT, result)      #나눈 결과를 value로 한 노드 반환
 
@@ -519,10 +511,6 @@ def run_func(op_code_node):
         r_node = l_node.next            #'<' 연산자에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
-        """
-        if op_code_node.next.type is TokenType.ID:
-            new_l_node = lookupTable(new_l_node.value)
-            """
         result = int(new_l_node.value) - int(new_r_node.value)  #피연산자의 값을 빼줌
         if result < 0:      #빼준 결과가 음수인 경우
             return Node(TokenType.TRUE)     #오른쪽 피연산자가 크다. (참)
@@ -537,10 +525,6 @@ def run_func(op_code_node):
         r_node = l_node.next            #'=' 연산자에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
-        """
-        if op_code_node.next.type is TokenType.ID:
-            new_l_node = lookupTable(new_l_node.value)
-            """
         result = int(new_l_node.value) - int(new_r_node.value)  #피연산자의 값을 빼줌
         if result is 0:     #빼준 결과가 0인 경우
             return Node(TokenType.TRUE)     #두 피연산자의 값이 같다. (참)
@@ -555,10 +539,6 @@ def run_func(op_code_node):
         r_node = l_node.next            #'>' 연산자에 대한 오른쪽 피연산자
         new_l_node = run_expr(l_node)   #각 피연산자에 대해 run_expr() 함수 실행
         new_r_node = run_expr(r_node)
-        """
-        if op_code_node.next.type is TokenType.ID:
-            new_l_node = lookupTable(new_l_node.value)
-            """
         result = int(new_l_node.value) - int(new_r_node.value)  #피연산자의 값을 빼줌
         if result > 0:      #빼준 결과가 0보다 큰 경우
             return Node(TokenType.TRUE)     #왼쪽 피연산자가 크다. (참)
@@ -601,49 +581,6 @@ def run_func(op_code_node):
             return run_cond(node.next)      #다음 조건문으로 넘어감
         return run_expr(node.value.next)        #조건문 결과가 참일 경우 해당 조건문의 리턴 값 반환
 
-    # def define_lambda(node):
-
-    def run_lambda(node):
-        formal_param_node = node.value.next.value
-        exp_node = node.value.next.next # 함수가 들어 있는 Node
-        actual_param_node = node.next
-
-
-
-        if actual_param_node is None:
-            return node
-
-
-        while True:
-            if actual_param_node.type is TokenType.ID:
-                temp_value = lookupTable(actual_param_node.value)
-
-            elif actual_param_node.type is TokenType.LIST:
-                temp_value = run_list(actual_param_node)
-
-                ####17번케이스 리커시젼을 위한거
-            elif actual_param_node.type is TokenType.INT:
-                temp_value = actual_param_node
-            elif actual_param_node.value.type is not TokenType.LAMBDA and actual_param_node.value.value in CuteType.KEYWORD_LIST:
-                temp_value = run_expr(actual_param_node)
-
-            else:
-                temp_value = actual_param_node
-                #### 리커시브 번경코드
-            insertTable(formal_param_node.value, temp_value)
-            if formal_param_node.next is not None:
-                formal_param_node = formal_param_node.next
-                actual_param_node = actual_param_node.next
-            else:
-                break
-
-
-        if exp_node.value.type is not TokenType.ID:
-            return run_func(exp_node.value)(exp_node)
-        else:
-            return run_list(exp_node)
-
-
     def create_new_quote_list(value_node, list_flag=False):
         """
         :type value_node: Node
@@ -663,6 +600,7 @@ def run_func(op_code_node):
         quote_list.next = new_value_list
         return wrapper_new_list
 
+    #Define 함수
     def define(node):
         id_node = node.value.next
         value_node = id_node.next
@@ -674,10 +612,49 @@ def run_func(op_code_node):
             value_node = run_expr(value_node)
         insertTable(id_node.value, value_node)
 
-    def insertTable(id, value):
-        symbolTable[id] = value
-        return symbolTable[id]
+    #람다실행
+    def run_lambda(node):
+        formal_param_node = node.value.next.value
+        exp_node = node.value.next.next # 함수가 들어 있는 Node
+        actual_param_node = node.next
+        prev_formal_param_value = {}
+        temp_formal_param = formal_param_node
+        temp_actual_param = actual_param_node
 
+        while temp_formal_param is not None and lookupTable(temp_formal_param.value) is not None:
+            prev_formal_param_value[temp_formal_param.value] = lookupTable(temp_formal_param.value)
+            temp_formal_param = temp_formal_param.next
+
+        temp_formal_param = formal_param_node
+
+        if actual_param_node is None:
+            return node
+
+        while True:
+            temp_value = run_expr(temp_actual_param)
+
+            insertTable(temp_formal_param.value, temp_value)
+
+            if temp_formal_param.next is not None:
+                temp_formal_param = temp_formal_param.next
+                temp_actual_param = temp_actual_param.next
+            else:
+                break
+
+        temp_formal_param = formal_param_node
+        temp_actual_param = temp_actual_param
+
+        result = run_expr(exp_node)
+
+        while temp_formal_param is not None:
+            del symbolTable[temp_formal_param.value]
+            temp_formal_param = temp_formal_param.next
+
+
+        while formal_param_node is not None and formal_param_node.value in prev_formal_param_value:
+            insertTable(formal_param_node.value, prev_formal_param_value[formal_param_node.value])
+            formal_param_node = formal_param_node.next
+        return result
 
     table = {}
     table['cons'] = cons
