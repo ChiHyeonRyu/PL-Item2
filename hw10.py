@@ -347,6 +347,12 @@ class BasicPaser(object):
 #전역 심볼테이블 선언
 symbolTable = {}
 
+def copyTable():
+    return symbolTable.copy()
+
+def setTable(dict):
+    symbolTable = dict
+
 #테이블에 넣기
 def insertTable(id, value):
     symbolTable[id] = value
@@ -621,10 +627,13 @@ def run_func(op_code_node):
         temp_formal_param = formal_param_node
         temp_actual_param = actual_param_node
 
-        #부모 변수 백업
-        while temp_formal_param is not None and lookupTable(temp_formal_param.value) is not None:
-            prev_formal_param_value[temp_formal_param.value] = lookupTable(temp_formal_param.value)
-            temp_formal_param = temp_formal_param.next
+        global symbolTable
+
+        backup = symbolTable.copy()
+        # #부모 변수 백업
+        # while temp_formal_param is not None and lookupTable(temp_formal_param.value) is not None:
+        #     prev_formal_param_value[temp_formal_param.value] = lookupTable(temp_formal_param.value)
+        #     temp_formal_param = temp_formal_param.next
 
         temp_formal_param = formal_param_node
 
@@ -654,15 +663,16 @@ def run_func(op_code_node):
             result = run_expr(exp_node.next)
             exp_node = exp_node.next
 
-        #임시로 바인딩한 지역변수를 테이블에서삭제
-        while temp_formal_param is not None:
-            del symbolTable[temp_formal_param.value]
-            temp_formal_param = temp_formal_param.next
-
-        #부모의 변수를 복원
-        while formal_param_node is not None and formal_param_node.value in prev_formal_param_value:
-            insertTable(formal_param_node.value, prev_formal_param_value[formal_param_node.value])
-            formal_param_node = formal_param_node.next
+        symbolTable = backup
+        # #임시로 바인딩한 지역변수를 테이블에서삭제
+        # while temp_formal_param is not None:
+        #     del symbolTable[temp_formal_param.value]
+        #     temp_formal_param = temp_formal_param.next
+        #
+        # #부모의 변수를 복원
+        # while formal_param_node is not None and formal_param_node.value in prev_formal_param_value:
+        #     insertTable(formal_param_node.value, prev_formal_param_value[formal_param_node.value])
+        #     formal_param_node = formal_param_node.next
 
         return result
 
