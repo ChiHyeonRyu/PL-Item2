@@ -347,12 +347,6 @@ class BasicPaser(object):
 #전역 심볼테이블 선언
 symbolTable = {}
 
-def copyTable():
-    return symbolTable.copy()
-
-def setTable(dict):
-    symbolTable = dict
-
 #테이블에 넣기
 def insertTable(id, value):
     symbolTable[id] = value
@@ -623,37 +617,24 @@ def run_func(op_code_node):
         formal_param_node = node.value.next.value
         exp_node = node.value.next.next # 함수가 들어 있는 Node
         actual_param_node = node.next
-        prev_formal_param_value = {}    #부모변수를 백업하기위한 테이블
-        temp_formal_param = formal_param_node
-        temp_actual_param = actual_param_node
-
         global symbolTable
 
         backup = symbolTable.copy()
-        # #부모 변수 백업
-        # while temp_formal_param is not None and lookupTable(temp_formal_param.value) is not None:
-        #     prev_formal_param_value[temp_formal_param.value] = lookupTable(temp_formal_param.value)
-        #     temp_formal_param = temp_formal_param.next
-
-        temp_formal_param = formal_param_node
 
         if actual_param_node is None:
             return node
 
         #매개변수 바인딩
         while True:
-            temp_value = run_expr(temp_actual_param)
+            temp_value = run_expr(actual_param_node)
 
-            insertTable(temp_formal_param.value, temp_value)
+            insertTable(formal_param_node.value, temp_value)
 
-            if temp_formal_param.next is not None:
-                temp_formal_param = temp_formal_param.next
-                temp_actual_param = temp_actual_param.next
+            if formal_param_node.next is not None:
+                formal_param_node = formal_param_node.next
+                actual_param_node = actual_param_node.next
             else:
                 break
-
-        temp_formal_param = formal_param_node
-        temp_actual_param = temp_actual_param
 
         #실행부분 실행
         result = run_expr(exp_node)
@@ -664,15 +645,6 @@ def run_func(op_code_node):
             exp_node = exp_node.next
 
         symbolTable = backup
-        # #임시로 바인딩한 지역변수를 테이블에서삭제
-        # while temp_formal_param is not None:
-        #     del symbolTable[temp_formal_param.value]
-        #     temp_formal_param = temp_formal_param.next
-        #
-        # #부모의 변수를 복원
-        # while formal_param_node is not None and formal_param_node.value in prev_formal_param_value:
-        #     insertTable(formal_param_node.value, prev_formal_param_value[formal_param_node.value])
-        #     formal_param_node = formal_param_node.next
 
         return result
 
@@ -839,10 +811,10 @@ def Test_All():
     Test_method("(cond ( ( null? ' ( 1 2 3 ) ) 1 ) ( ( > 100 10 ) 2 ) ( #T 3 ) )")
     """
 
-    print "::: 종료를 원하면 'n' 혹은 'N'을 입력하세요 :::"
+    print "::: 종료를 원하면 'q' 혹은 'Q'을 입력하세요 :::"
     while True:
         cuteExpression = raw_input("> ")
-        if cuteExpression == "n" or cuteExpression == "N":
+        if cuteExpression == "q" or cuteExpression == "Q":
             break
         Test_method(cuteExpression)
     print "\n<201203405 류치현>"
